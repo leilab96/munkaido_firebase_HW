@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Image, View, Text, TouchableOpacity, StyleSheet, Switch } from 'react-native';
 
-import { signOutUser } from '../auth';
 import { addHistory, updateUserState } from '../database';
 
 const StatusPage = ({ navigation: { navigate }, userData, setUserData }) => {
@@ -13,10 +12,6 @@ const StatusPage = ({ navigation: { navigate }, userData, setUserData }) => {
     const urlString = 'https://inspirobot.me/api?generate=true';
     const response = await fetch(urlString);
     setLink(await response.text());
-  };
-  const handleLogout = async () => {
-    await signOutUser();
-    setUserData(null);
   };
 
   const toggleSwitch = () => {
@@ -38,9 +33,9 @@ const StatusPage = ({ navigation: { navigate }, userData, setUserData }) => {
 
   return loadStatusPage ? null : (
     <View style={styles.container}>
-      <View style={styles.logoutSection}>
-        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Text style={styles.logoutButtonText}>Kijelentkezés</Text>
+      <View style={styles.settingsSection}>
+        <TouchableOpacity style={styles.settingsButton} onPress={() => navigate('Beállítások')}>
+          <Text style={styles.settingsButtonText}>Beállítások</Text>
         </TouchableOpacity>
       </View>
       <Text style={styles.appTitle}>Szia {userData.name}!</Text>
@@ -78,13 +73,13 @@ const styles = StyleSheet.create({
     fontSize: 30,
     marginVertical: 30,
   },
-  logoutSection: {
+  settingsSection: {
     alignSelf: 'stretch',
   },
-  logoutButton: {
+  settingsButton: {
     alignSelf: 'stretch',
   },
-  logoutButtonText: {
+  settingsButtonText: {
     marginRight: 'auto',
     fontStyle: 'italic',
     color: 'blue',
