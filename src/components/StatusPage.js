@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Image, View, Text, TouchableOpacity, StyleSheet, Switch } from 'react-native';
+import { addHistory } from '../database';
 
-import { addHistory, updateUserState } from '../database';
-
-const StatusPage = ({ navigation: { navigate }, userData, setUserData }) => {
+const StatusPage = ({ navigation: { navigate }, userData, setUserData, toggleSwitch }) => {
   const [link, setLink] = useState('');
   const [loadStatusPage, setLoadStatusPage] = useState(true);
 
@@ -14,18 +13,13 @@ const StatusPage = ({ navigation: { navigate }, userData, setUserData }) => {
     setLink(await response.text());
   };
 
-  const toggleSwitch = () => {
-    let newState = '';
-    if (userData.currentState === 'in') {
-      newState = 'out';
-    } else {
-      newState = 'in';
-    }
-    generateImage();
-    setUserData({ ...userData, currentState: newState });
-    updateUserState(userData.email, newState);
+  //toggleSwitch kikerült az InnerPage-be, statusUpdate megkapja a newState-t amivel felveheti a status megváltozását a history-ba és a link is legenerálódik az inspirational háttérhez
+  const statusUpdate = () => {
+    const newState = toggleSwitch();
     addHistory(userData.email, newState);
+    generateImage();
   };
+
   //várja meg a link fetch-elését
   useEffect(() => {
     generateImage().then(() => setLoadStatusPage(false));
@@ -46,7 +40,7 @@ const StatusPage = ({ navigation: { navigate }, userData, setUserData }) => {
         trackColor={{ false: '#767577', true: '#81b0ff' }}
         thumbColor={userData.currentState === 'in' ? '#f5dd4b' : '#f4f3f4'}
         ios_backgroundColor="#3e3e3e"
-        onValueChange={toggleSwitch}
+        onValueChange={statusUpdate}
         value={userData.currentState === 'in'}
       />
       <TouchableOpacity onPress={() => navigate('Napló')} style={[styles.button, styles.shadow]}>
@@ -109,9 +103,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 3,
   },
+  //változtattam a kép méretein a korábbiakhoz képest, mert sok esetben a szöveg nem látszott
   image: {
-    width: 400,
-    height: 400,
+    width: '110%',
+    height: undefined,
+    aspectRatio: 1,
     resizeMode: 'contain',
   },
 });
